@@ -1,3 +1,5 @@
+import java.util.Iterator;
+
 public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet<E> {
 
     private Node root;
@@ -39,15 +41,16 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
     public boolean add(E x) {
         if(root == null){
             root = new Node(x);
+            return true;
         }
         Node node = addRec(root, x);
         if (node == null) {
             return false;
         }
-        System.out.println("Trying to add");
+        //System.out.println("Trying to add");
         doSplay(node);
         size++;
-        System.out.println("Added");
+        //System.out.println("Added");
         return true;
     }
 
@@ -138,80 +141,91 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
             System.out.println("Parameter node is not a rightChild and this method should not be picked");
             return;
         }
-        Node exParent = node.parent;
-        Node subtreeParent = exParent.parent;
 
-        // Move "node"'s left subtree to its former parent.
+        //Save variables
+        Node exParent = node.parent;
+        Node exGrandParent = exParent.parent;
+
         exParent.right = node.left;
+        /*
+        Vi missade i princip att referera om .parent i subträden, vilket orsakade våra cirkulära relationer
+         */
         if (node.left != null) {
             node.left.parent = exParent;
         }
-
-        // Make exParent become a child of "node".
         node.left = exParent;
         exParent.parent = node;
 
-        // Make "node" become a child of exParent's former parent.
-        node.parent = subtreeParent;
-        if (subtreeParent == null) {
+        node.parent = exGrandParent;
+        if (exGrandParent == null) {
             root = node;
-        } else if (subtreeParent.right == exParent) {
-            subtreeParent.right = node;
+        } else if (exGrandParent.right == exParent) {
+            exGrandParent.right = node;
         } else {
-            subtreeParent.left = node;
+            exGrandParent.left = node;
         }
-
-        /*Node parent = node.parent;
-
-        parent.right = node.left;
-        node.left = parent;
-        node.parent = parent.parent;
-        parent.parent = node;*/
-        //updateRoot(node, exParent);
     }
 
     private void rotateRight(Node node){
-        if (node == null || node.parent == null || node.parent.left != node) {
-            System.out.println("Illegal call to rotateRight().  You have bug #1.");
+        if(node == null){
+            System.out.println("Parameter for rotateRight is null, which shouldn't be allowed");
             return;
         }
-
+        if(node.parent == null){
+            System.out.println("rotateRight: parameter.parent is null. Is parameter root? (Still not an allowed call) " + root + " = " + node);
+            return;
+        }
+        if(node.parent.left != node){
+            System.out.println("Parameter node is not a leftChild and this method should not be picked");
+            return;
+        }
+        //Save variables
         Node exParent = node.parent;
-        Node subtreeParent = exParent.parent;
+        Node exGrandParent = exParent.parent;
 
-        // Move "node"'s right subtree to its former parent.
         exParent.left = node.right;
-        if(node.right != null){
+        if(node.right != null){ //Update the subtree root of node.right, so it reference the correct parent
             node.right.parent = exParent;
         }
+        node.right = exParent; // As by the rules of a right rotation, node.right needs to reference its former parent as a right child
+        exParent.parent = node; // the former parent which now is a child of node, needs to get it's parents reference updated
 
-        // Make exParent become a child of "node".
-        node.right = exParent;
-        exParent.parent = node;
-
-        // Make "node" become a child of exParent's former parent.
-        node.parent = subtreeParent;
-        if(subtreeParent == null){
+        node.parent = exGrandParent; //nodes new parent is it's former grandparent
+        if(exGrandParent == null){ //check if it's the new root for the tree and make it happen if so
             root = node;
-        }else if(subtreeParent.right == exParent) {
-            subtreeParent.right = node;
+        }else if(exGrandParent.right == exParent) { //Check if nodes former parent was a left or right child and take its place
+            exGrandParent.right = node;
         }else{
-            subtreeParent.left = node;
-    }
-
-        /*Node parent = node.parent;
-
-        parent.left = node.right;
+            exGrandParent.left = node;
+        }
+        /*parent.left = node.right;
         node.right = parent;
         node.parent = parent.parent;
+        parent.parent = node;
+        updateRoot(node, parent);
         parent.parent = node;*/
-        //updateRoot(node, exParent);
     }
 
-    private void updateRoot(Node node, Node parent){
-        if(parent.data.compareTo(root.data) == 0){
-            root = node;
+    private Node getRightMost(Node node){
+        //Kan va kass kod
+        if(node.right != null){
+            return getRightMost(node.right);
         }
+        return node;
+    }
+
+
+    ///////////////////////////////////////////////ORSAKAR NULLPOINTER///////////////////////////////////////////////
+    private void removeRec(Node node){
+        Node startPoint = node.left;
+        Node rightMost = getRightMost(startPoint);
+        node.data = rightMost.data;
+        if(rightMost.left != null){
+            removeRec(rightMost.left);
+        }else{
+            rightMost.parent.right = null;
+        }
+
     }
 
     @Override
@@ -220,7 +234,21 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         if(node == null){
             return false;
         }
-        if(root.data.compareTo(node.data) == 0){
+        removeRec(node);
+        /*if(root.data.compareTo(node.data) == 0){
+
+            Stämmer detta? Om vi har ett träd > 1 borde vi väl bara ta
+            leftMost i höger subträd/rightMost i vänster
+            och ersätta värdet i root med värdet från dessa, sedan ta bort leftMost typ?
+
+             Vänstersökning som exempel
+             1. Hitta rightmost
+             2. Ta värdet från rightmost och ersätt värdet i noden som ska tas bort
+             3. Från det rightmost du hitta, kolla om den har vänsterbarn
+             3a. Inget vänsterbarn? Ta bort referens från dess förälder (node.parent.right = null)
+             3b. Vänsterbarn finns, hitta rightmost och repetera.
+
+
             root = null;
         }else if(node.left == null && node.right == null){
             if(node.isLeftChild()){
@@ -246,7 +274,7 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
             lrNode.parent.right = lrNode.left;
         }else{
             return false;
-        }
+        }*/
         size--;
         System.out.println("Removed");
         return true;
@@ -286,7 +314,28 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         return node;
     }
 
+    @Override
+    public String toString(){
+        StringBuilder values = new StringBuilder("[");
+        toStringRec(root, values);
+        values.append("]");
+        return values.toString();
+    }
 
+    private void toStringRec(Node node, StringBuilder values) {
+        if(node == null){
+            return;
+        }
+        if (node.left != null) {
+            toStringRec(node.left, values);
+            values.append(", ");
+        }
+        values.append(node.data);
+        if (node.right != null) {
+            values.append(", ");
+            toStringRec(node.right, values);
+        }
+    }
 
 
 }

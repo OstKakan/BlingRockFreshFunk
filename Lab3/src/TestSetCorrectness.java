@@ -33,8 +33,8 @@ public class TestSetCorrectness {
 
             for(operationsPerTest = n3 ; operationsPerTest > 0 ; operationsPerTest--){
 
-                //int methodChooser = random.nextInt(4);
-                int methodChooser = 0;
+                int methodChooser = random.nextInt(3);
+                //int methodChooser = 0;
                 int randomInt = random.nextInt(interval);
 
                 if(methodChooser == 0){
@@ -67,6 +67,8 @@ public class TestSetCorrectness {
         System.out.println("Contain fails: " + containsFail);
         System.out.println("Size successfull: " + sizeSuccess);
         System.out.println("Size fails: " + sizeFail);
+    //    System.out.println("set:\t\t" + set.toString());
+    //    System.out.println("javaSet:\t" + javaSet.toString());
 
     }
 }
