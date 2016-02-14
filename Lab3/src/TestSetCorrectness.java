@@ -33,8 +33,10 @@ public class TestSetCorrectness {
 
             for(operationsPerTest = n3 ; operationsPerTest > 0 ; operationsPerTest--){
 
-                int methodChooser = random.nextInt(4);
+                //int methodChooser = random.nextInt(4);
+                int methodChooser = 0;
                 int randomInt = random.nextInt(interval);
+
                 if(methodChooser == 0){
                     if(set.add(randomInt) == javaSet.add(randomInt)){
                         addSuccess++;
