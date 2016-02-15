@@ -1,13 +1,11 @@
 class SortedLinkedListSet<E  extends Comparable<? super E>> implements SimpleSet<E> {
 
     private int size;
-    private Node next;
-    private Node first;
+    private final Node dummyNode;
 
     public SortedLinkedListSet() {
         size = 0;
-        next = null;
-        first = null;
+        dummyNode = new Node();
     }
 
     private class Node {
@@ -22,18 +20,6 @@ class SortedLinkedListSet<E  extends Comparable<? super E>> implements SimpleSet
             this.data = data;
             this.next = null;
         }
-
-        public Node getNext() {
-            return this.next;
-        }
-
-        public E getData() {
-            return this.data;
-        }
-
-        public void setData(E data) {
-            this.data = data;
-        }
     }
 
     @Override
@@ -44,66 +30,48 @@ class SortedLinkedListSet<E  extends Comparable<? super E>> implements SimpleSet
     @Override
     public boolean add(E x) {
         Node node = new Node(x);
-        Node loopNode = first;
-        Node prevNode = null;
+        Node currentNode = dummyNode;
 
-        while(loopNode != null && loopNode.data.compareTo(node.data) >= 0){
-            prevNode = loopNode;
-            loopNode = loopNode.next;
+        while (currentNode.next != null) {
+            if (x.compareTo(currentNode.next.data) == 0) {
+                return false;
+            } else if (x.compareTo(currentNode.next.data) < 0) {
+                node.next = currentNode.next;
+                break;
+            }
+            currentNode = currentNode.next;
         }
-        if(prevNode == null){
-            first = node;
-            node.next = loopNode;
-            size++;
-            return true;
-        }else if(loopNode == null) {
-            node.next = loopNode;
-            prevNode.next = node;
-            size++;
-            return true;
-        }else if(prevNode != null && loopNode != null){
-            prevNode.next = node;
-            node.next = loopNode;
-            size++;
-            return true;
-        }
-        return false;
+
+        currentNode.next = node;
+        size++;
+
+        return true;
     }
 
     @Override
     public boolean remove(E x) {
-        Node node = new Node(x);
-        Node loopNode = first;
-        Node prevLoopNode = null;
+        Node currentNode = dummyNode;
 
-        while(loopNode != null){
-
-            if(loopNode.data.compareTo(node.data) == 0){
-                if(prevLoopNode != null){
-                    prevLoopNode.next = loopNode.next;
-                }else{
-                    first = loopNode.next;
-                }
+        while (currentNode.next != null) {
+            if (x.compareTo(currentNode.next.data) == 0) {
+                currentNode.next = currentNode.next.next;
                 size--;
                 return true;
             }
-
-            prevLoopNode = loopNode;
-            loopNode = loopNode.next;
+            currentNode = currentNode.next;
         }
         return false;
     }
 
     @Override
     public boolean contains(E x) {
-        Node node = new Node(x);
-        Node loopNode = first;
+        Node currentNode = dummyNode;
 
-        while(loopNode != null){
-            if(loopNode.data.compareTo(node.data) == 0){
+        while (currentNode.next != null) {
+            if (x.compareTo(currentNode.next.data) == 0) {
                 return true;
             }
-            loopNode = loopNode.next;
+            currentNode = currentNode.next;
         }
         return false;
     }
