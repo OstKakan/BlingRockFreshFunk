@@ -33,7 +33,6 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
 
     @Override
     public int size() {
-        System.out.println("Checked size");
         return size;
     }
 
@@ -41,6 +40,7 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
     public boolean add(E x) {
         if(root == null){
             root = new Node(x);
+            size++;
             return true;
         }
         Node node = addRec(root, x);
@@ -77,7 +77,9 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
     }
 
     private void doSplay(Node node) {
-
+        if(node == null){
+            return;
+        }
         while(node.data.compareTo(root.data) != 0) {
             /*    if (node.parent.data.compareTo(root.data) == 0) {
                 //is node a right or left child? if right rotateleft - if left rotateright
@@ -192,7 +194,7 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
 
         node.parent = exGrandParent; //nodes new parent is it's former grandparent
         if(exGrandParent == null){ //check if it's the new root for the tree and make it happen if so
-            root = node;
+                root = node;
         }else if(exGrandParent.right == exParent) { //Check if nodes former parent was a left or right child and take its place
             exGrandParent.right = node;
         }else{
@@ -216,17 +218,77 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
 
 
     ///////////////////////////////////////////////ORSAKAR NULLPOINTER///////////////////////////////////////////////
-    private void removeRec(Node node){
-        Node startPoint = node.left;
-        Node rightMost = getRightMost(startPoint);
+    private void removeTwoChildren(Node node){
+
+        Node rightMost = getRightMost(node.left);
         node.data = rightMost.data;
-        if(rightMost.left != null){
-            removeRec(rightMost.left);
-        }else{
-            rightMost.parent.right = null;
-        }
+        removeNode(rightMost);
 
     }
+
+    private void removeOneChild(Node node){
+        if((node.left == null && node.right == null) || (node.left != null && node.right != null)){
+            System.out.println("Idiot, den har ju antingen inget eller två barn! [removeOneChild]");
+            return;
+        }
+        if(node.parent == null){
+            if(node.right != null){
+                node.right.parent = null;
+                root = node.right;
+            }else {
+                node.left.parent = null;
+                root = node.left;
+            }
+            return;
+        }
+
+        if(node.parent.right == node){
+            if(node.right != null){
+                node.parent.right = node.right;
+                node.right.parent = node.parent;
+            }else{
+                node.parent.right = node.left;
+                node.left.parent = node.parent;
+            }
+        }else{
+            if(node.right != null){
+                node.parent.left = node.right;
+                node.right.parent = node.parent;
+            }else {
+                node.parent.left = node.left;
+                node.left.parent = node.parent;
+            }
+        }
+    }
+
+    private void removeNoChild(Node node){
+        if(node.left != null || node.right != null){
+            System.out.println("Idiot, den har ju för fan barn! [removeNoChild]");
+            return;
+        }
+        if(node.parent == null){
+            root = null;
+            return;
+        }
+        if(node.parent.right == node){
+            node.parent.right = null;
+        }else{
+            node.parent.left = null;
+        }
+    }
+
+    private void removeNode(Node node){
+        if(node.left != null && node.right != null){
+            removeTwoChildren(node);
+        }else if(node.left == null && node.right == null){
+            removeNoChild(node);
+        }else{
+            removeOneChild(node);
+        }
+        doSplay(node.parent);
+    }
+
+
 
     @Override
     public boolean remove(E x) {
@@ -234,49 +296,8 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         if(node == null){
             return false;
         }
-        removeRec(node);
-        /*if(root.data.compareTo(node.data) == 0){
-
-            Stämmer detta? Om vi har ett träd > 1 borde vi väl bara ta
-            leftMost i höger subträd/rightMost i vänster
-            och ersätta värdet i root med värdet från dessa, sedan ta bort leftMost typ?
-
-             Vänstersökning som exempel
-             1. Hitta rightmost
-             2. Ta värdet från rightmost och ersätt värdet i noden som ska tas bort
-             3. Från det rightmost du hitta, kolla om den har vänsterbarn
-             3a. Inget vänsterbarn? Ta bort referens från dess förälder (node.parent.right = null)
-             3b. Vänsterbarn finns, hitta rightmost och repetera.
-
-
-            root = null;
-        }else if(node.left == null && node.right == null){
-            if(node.isLeftChild()){
-                node.parent.left = null;
-            }else{
-                node.parent.right = null;
-            }
-        }else if(node.left == null){
-            if(node.isLeftChild()){
-                node.parent.left = node.right;
-            }else{
-                node.parent.right = node.right;
-            }
-        }else if(node.right == null){
-            if(node.isLeftChild()){
-                node.parent.left = node.left;
-            }else{
-                node.parent.right = node.left;
-            }
-        }else if(node.left != null && node.right != null){
-            Node lrNode = findRightMostNode(node.left);
-            node.data = lrNode.data;
-            lrNode.parent.right = lrNode.left;
-        }else{
-            return false;
-        }*/
+        removeNode(node);
         size--;
-        System.out.println("Removed");
         return true;
     }
 
@@ -290,16 +311,13 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
     @Override
     public boolean contains(E x) {
         if(root == null){
-            System.out.println("Checked contained");
             return false;
         }
         Node node = containsRec(root, x);
         if(node != null){
             doSplay(node);
-            System.out.println("Checked contained");
             return true;
         }
-        System.out.println("Checked contained");
         return false;
     }
 
@@ -336,6 +354,4 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
             toStringRec(node.right, values);
         }
     }
-
-
 }

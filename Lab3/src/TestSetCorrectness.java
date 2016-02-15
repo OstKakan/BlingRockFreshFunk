@@ -33,7 +33,7 @@ public class TestSetCorrectness {
 
             for(operationsPerTest = n3 ; operationsPerTest > 0 ; operationsPerTest--){
 
-                int methodChooser = random.nextInt(3);
+                int methodChooser = random.nextInt(4);
                 //int methodChooser = 0;
                 int randomInt = random.nextInt(interval);
 
@@ -58,6 +58,8 @@ public class TestSetCorrectness {
 
                 //set.add(random.nextInt(interval-1));
             }
+            //System.out.println("set:\t\t" + set.toString());
+            //System.out.println("javaSet:\t" + javaSet.toString());
         }
         System.out.println("Adds successfull: " + addSuccess);
         System.out.println("Adds failure: " + addFail);
@@ -67,8 +69,8 @@ public class TestSetCorrectness {
         System.out.println("Contain fails: " + containsFail);
         System.out.println("Size successfull: " + sizeSuccess);
         System.out.println("Size fails: " + sizeFail);
-    //    System.out.println("set:\t\t" + set.toString());
-    //    System.out.println("javaSet:\t" + javaSet.toString());
+        /*System.out.println("set:\t\t" + set.toString());
+        System.out.println("javaSet:\t" + javaSet.toString());*/
 
     }
 }
