@@ -22,11 +22,19 @@ class SortedLinkedListSet<E  extends Comparable<? super E>> implements SimpleSet
         }
     }
 
+    /**
+     * @return The size of the set
+     */
     @Override
     public int size() {
         return this.size;
     }
 
+    /**
+     * Adds a new element to the set
+     * @param x The data to add to the element
+     * @return true if element was added, false otherwise
+     */
     @Override
     public boolean add(E x) {
         Node node = new Node(x);
@@ -49,10 +57,16 @@ class SortedLinkedListSet<E  extends Comparable<? super E>> implements SimpleSet
         return true;
     }
 
+    /**
+     * Removes an element of the set
+     * @param x The data of the element to remove
+     * @return true if element was removed, false otherwise
+     */
     @Override
     public boolean remove(E x) {
         Node currentNode = dummyNode;
 
+        // Find the node and remove it
         while (currentNode.next != null) {
             if (x.compareTo(currentNode.next.data) == 0) {
                 currentNode.next = currentNode.next.next;
@@ -64,6 +78,10 @@ class SortedLinkedListSet<E  extends Comparable<? super E>> implements SimpleSet
         return false;
     }
 
+    /**
+     * @param x The data of the element to look for
+     * @return true if element was found, false otherwise
+     */
     @Override
     public boolean contains(E x) {
         Node currentNode = dummyNode;
