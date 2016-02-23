@@ -210,8 +210,11 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         doSplay(node.parent);
     }
 
-
-
+    /**
+     * Removes node with specific data
+     * @param x The data of the node to remove
+     * @return true if node was removed, false otherwise
+     */
     @Override
     public boolean remove(E x) {
         Node node = findNode(root, x);
@@ -223,6 +226,10 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         return true;
     }
 
+    /**
+     * @param x The data to check if exists in the set
+     * @return true if the data is in set, false otherwise
+     */
     @Override
     public boolean contains(E x) {
         if(root == null){
@@ -236,6 +243,12 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         return false;
     }
 
+    /**
+     * Find a node in this set with a specific data
+     * @param node The node to search from
+     * @param x The data to search for
+     * @return The node which holds the data
+     */
     public Node findNode(Node node, E x){
         if(node == null) {
             return null;
