@@ -32,6 +32,7 @@ class SortedLinkedListSet<E  extends Comparable<? super E>> implements SimpleSet
         Node node = new Node(x);
         Node currentNode = dummyNode;
 
+        // Go through all nodes to see if already exists
         while (currentNode.next != null) {
             if (x.compareTo(currentNode.next.data) == 0) {
                 return false;

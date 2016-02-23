@@ -23,6 +23,7 @@ public class TestSetCorrectness {
         interval = n4;
         Random random = new Random();
 
+        restartsLoop:
         for(restarts = n2 ; restarts > 0 ; restarts--){
             if(n1 == 1){
                 set = new SortedLinkedListSet<Integer>();
@@ -31,30 +32,31 @@ public class TestSetCorrectness {
             }
             javaSet = new TreeSet<Integer>();
 
+            boolean testSuccessful;
+            String failedTest;
             for(operationsPerTest = n3 ; operationsPerTest > 0 ; operationsPerTest--){
 
                 int methodChooser = random.nextInt(4);
-                //int methodChooser = 0;
                 int randomInt = random.nextInt(interval);
 
                 if(methodChooser == 0){
-                    if(set.add(randomInt) == javaSet.add(randomInt)){
-                        addSuccess++;
-                    }else addFail++;
+                    testSuccessful = set.add(randomInt) == javaSet.add(randomInt);
+                    failedTest = "add";
                 }else if(methodChooser == 1){
-                    if(set.contains(randomInt) == javaSet.contains(randomInt)){
-                        containSuccess++;
-                    }else containsFail++;
+                    testSuccessful = set.contains(randomInt) == javaSet.contains(randomInt);
+                    failedTest = "contains";
                 }else if(methodChooser == 2){
-                    if(set.remove(randomInt) == javaSet.remove(randomInt)){
-                        removeSuccess++;
-                    }else removeFail++;
+                    testSuccessful = set.remove(randomInt) == javaSet.remove(randomInt);
+                    failedTest = "remove";
                 }else{
-                    if(set.size() == javaSet.size()){
-                        sizeSuccess++;
-                    }else sizeFail++;
+                    testSuccessful = set.size() == javaSet.size();
+                    failedTest = "size";
                 }
 
+                if (!testSuccessful) {
+                    System.out.println("Test " + failedTest + "failed! There was a bug in the code. :(");
+                    break restartsLoop;
+                }
 
                 //set.add(random.nextInt(interval-1));
             }
@@ -71,6 +73,5 @@ public class TestSetCorrectness {
         System.out.println("Size fails: " + sizeFail);
         /*System.out.println("set:\t\t" + set.toString());
         System.out.println("javaSet:\t" + javaSet.toString());*/
-
     }
 }

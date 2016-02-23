@@ -1,4 +1,6 @@
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet<E> {
 
@@ -13,21 +15,15 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         private E data;
         private Node left, right, parent;
 
-        public Node() {
+        private Node() {
             this.data = null;
             this.left = null;
             this.right = null;
         }
 
         public Node(E data) {
+            this();
             this.data = data;
-        }
-
-        public boolean isLeftChild() {
-            if (this.parent != null) {
-                return this.data.compareTo(this.parent.data) < 0;
-            }
-            return false;
         }
     }
 
@@ -38,11 +34,14 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
 
     @Override
     public boolean add(E x) {
+        // Insert node at root
         if(root == null){
             root = new Node(x);
             size++;
             return true;
         }
+
+        // Insert node if it doesn't already exist
         Node node = addRec(root, x);
         if (node == null) {
             return false;
@@ -54,17 +53,18 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         return true;
     }
 
-
     private Node addRec(Node current, E x) {
+        // New node should be added to left side of current node
         if(x.compareTo(current.data) < 0){
             if(current.left == null){
                 current.left = new Node(x);
                 current.left.parent = current;
                 return current.left;
-            }else{
+            }else {
                 return addRec(current.left, x);
             }
-        }else if(x.compareTo(current.data) > 0){
+        // New node should be added to right side of current node
+        } else if(x.compareTo(current.data) > 0){
             if(current.right == null){
                 current.right = new Node(x);
                 current.right.parent = current;
@@ -80,32 +80,8 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         if(node == null){
             return;
         }
+
         while(node.data.compareTo(root.data) != 0) {
-            /*    if (node.parent.data.compareTo(root.data) == 0) {
-                //is node a right or left child? if right rotateleft - if left rotateright
-                if(node.isLeftChild()){
-                    rotateRight(node);
-                }else{
-                    rotateLeft(node);
-                }
-            } else if (node.isLeftChild() == node.parent.isLeftChild()) { // If node and it's parents both are both left children or right children
-                // if node and parent are leftchildren, rotate parent and gparent right, then node and gparent right
-                if(node.isLeftChild()){
-                    rotateRight(node.parent);
-                    rotateRight(node);
-                }else{
-                    rotateLeft(node.parent);
-                    rotateLeft(node);
-                }
-            } else if (node.isLeftChild() != node.parent.isLeftChild()) { //If node and it's parent are not both left children or right children
-                if(node.isLeftChild()){
-                    rotateRight(node);
-                    rotateLeft(node);
-                }else{
-                    rotateLeft(node);
-                    rotateRight(node);
-                }
-            }*/
             if(node.parent.data.compareTo(root.data) == 0){ //Parent of node is root - only one rotation
                 if(node.parent.left == node){
                     rotateRight(node);
@@ -124,9 +100,7 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
             }else if(node.parent.right == node && node.parent.parent.left == node.parent){ // Parent left child, node right child
                 rotateLeft(node);
                 rotateRight(node);
-            }//else{
-                //System.out.println("Not sure - but I dont think this should be reached.......");
-            //}
+            }
         }
     }
 
@@ -218,7 +192,7 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
 
 
     ///////////////////////////////////////////////ORSAKAR NULLPOINTER///////////////////////////////////////////////
-    private void removeTwoChildren(Node node){
+    private void removeWithTwoChildren(Node node){
 
         Node rightMost = getRightMost(node.left);
         node.data = rightMost.data;
@@ -226,9 +200,9 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
 
     }
 
-    private void removeOneChild(Node node){
+    private void removeWithOneChild(Node node){
         if((node.left == null && node.right == null) || (node.left != null && node.right != null)){
-            System.out.println("Idiot, den har ju antingen inget eller två barn! [removeOneChild]");
+            System.out.println("Idiot, den har ju antingen inget eller två barn! [removeWithOneChild]");
             return;
         }
         if(node.parent == null){
@@ -261,9 +235,9 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         }
     }
 
-    private void removeNoChild(Node node){
+    private void removeWithNoChild(Node node){
         if(node.left != null || node.right != null){
-            System.out.println("Idiot, den har ju för fan barn! [removeNoChild]");
+            System.out.println("Idiot, den har ju för fan barn! [removeWithNoChild]");
             return;
         }
         if(node.parent == null){
@@ -279,11 +253,11 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
 
     private void removeNode(Node node){
         if(node.left != null && node.right != null){
-            removeTwoChildren(node);
+            removeWithTwoChildren(node);
         }else if(node.left == null && node.right == null){
-            removeNoChild(node);
+            removeWithNoChild(node);
         }else{
-            removeOneChild(node);
+            removeWithOneChild(node);
         }
         doSplay(node.parent);
     }
@@ -292,7 +266,7 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
 
     @Override
     public boolean remove(E x) {
-        Node node = containsRec(root, x);
+        Node node = findNode(root, x);
         if(node == null){
             return false;
         }
@@ -301,19 +275,12 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         return true;
     }
 
-    private Node findRightMostNode(Node node){ //Find the (in this case) right most node under parameter Node
-        if(node.right == null){
-            return node;
-        }
-        return findRightMostNode(node.right);
-    }
-
     @Override
     public boolean contains(E x) {
         if(root == null){
             return false;
         }
-        Node node = containsRec(root, x);
+        Node node = findNode(root, x);
         if(node != null){
             doSplay(node);
             return true;
@@ -321,13 +288,13 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         return false;
     }
 
-    public Node containsRec(Node node, E x){
+    public Node findNode(Node node, E x){
         if(node == null) {
             return null;
         }else if(node.data.compareTo(x) > 0) {
-            return containsRec(node.left, x);
+            return findNode(node.left, x);
         }else if(node.data.compareTo(x) < 0){
-            return containsRec(node.right, x);
+            return findNode(node.right, x);
         }
         return node;
     }
