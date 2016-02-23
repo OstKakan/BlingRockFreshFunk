@@ -1,3 +1,8 @@
+/**
+ * Splay Tree, recently used nodes will be moved to the top of the tree, whilst maintaining a BST structure
+ *
+ * @param <E> The data in the nodes
+ */
 public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet<E> {
 
     private Node root;
@@ -23,14 +28,23 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         }
     }
 
+    /**
+     * @return the number of nodes in the tree
+     */
     @Override
     public int size() {
         return size;
     }
 
+    /**
+     * Adds a new node to the tree and splays it to the top of the tree
+     *
+     * @param x the data that the new node will contain
+     * @return boolean stating if the add was successful or not
+     */
     @Override
     public boolean add(E x) {
-        // Insert node at root
+        // If root is null the tree is empty and a new root is made
         if(root == null){
             root = new Node(x);
             size++;
@@ -104,17 +118,16 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         Node exGrandParent = exParent.parent;
 
         exParent.right = node.left;
-
-        if (node.left != null) {
+        if (node.left != null) { //Update the subtree of node.left, so it references the correct parent
             node.left.parent = exParent;
         }
-        node.left = exParent;
-        exParent.parent = node;
+        node.left = exParent; //As by the rules of a left rotation, node.left needs to reference its former parent as a left child
+        exParent.parent = node; // the former parent which now is a child of a node, needs to get its parent reference updated
 
-        node.parent = exGrandParent;
-        if (exGrandParent == null) {
+        node.parent = exGrandParent; //nodes new parent is its former grandparent
+        if (exGrandParent == null) { //check if it's the new root for the tree and make it happen if so
             root = node;
-        } else if (exGrandParent.right == exParent) {
+        } else if (exGrandParent.right == exParent) {//Check if nodes former parent was a left or right child and take its place
             exGrandParent.right = node;
         } else {
             exGrandParent.left = node;
@@ -143,6 +156,12 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         }
     }
 
+    /**
+     * Finds the right most node in a tree, which is the largest value
+     *
+     * @param node the root of the tree of which you need the largest value
+     * @return returns the node that hold the largest value
+     */
     private Node getRightMost(Node node){
         if(node.right != null){
             return getRightMost(node.right);
