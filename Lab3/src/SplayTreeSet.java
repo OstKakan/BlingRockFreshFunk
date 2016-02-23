@@ -1,7 +1,3 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet<E> {
 
     private Node root;
@@ -46,10 +42,8 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         if (node == null) {
             return false;
         }
-        //System.out.println("Trying to add");
         doSplay(node);
         size++;
-        //System.out.println("Added");
         return true;
     }
 
@@ -105,27 +99,12 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
     }
 
     private void rotateLeft(Node node){
-        if(node == null){
-            System.out.println("Parameter for rotateLeft is null, which shouldn't be allowed");
-            return;
-        }
-        if(node.parent == null){
-            System.out.println("rotateLeft: parameter.parent is null. Is parameter root? (Still not an allowed call) " + root + " = " + node);
-            return;
-        }
-        if(node.parent.right != node){ //Should check the same thing
-            System.out.println("Parameter node is not a rightChild and this method should not be picked");
-            return;
-        }
-
         //Save variables
         Node exParent = node.parent;
         Node exGrandParent = exParent.parent;
 
         exParent.right = node.left;
-        /*
-        Vi missade i princip att referera om .parent i subträden, vilket orsakade våra cirkulära relationer
-         */
+
         if (node.left != null) {
             node.left.parent = exParent;
         }
@@ -143,18 +122,6 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
     }
 
     private void rotateRight(Node node){
-        if(node == null){
-            System.out.println("Parameter for rotateRight is null, which shouldn't be allowed");
-            return;
-        }
-        if(node.parent == null){
-            System.out.println("rotateRight: parameter.parent is null. Is parameter root? (Still not an allowed call) " + root + " = " + node);
-            return;
-        }
-        if(node.parent.left != node){
-            System.out.println("Parameter node is not a leftChild and this method should not be picked");
-            return;
-        }
         //Save variables
         Node exParent = node.parent;
         Node exGrandParent = exParent.parent;
@@ -174,37 +141,22 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
         }else{
             exGrandParent.left = node;
         }
-        /*parent.left = node.right;
-        node.right = parent;
-        node.parent = parent.parent;
-        parent.parent = node;
-        updateRoot(node, parent);
-        parent.parent = node;*/
     }
 
     private Node getRightMost(Node node){
-        //Kan va kass kod
         if(node.right != null){
             return getRightMost(node.right);
         }
         return node;
     }
 
-
-    ///////////////////////////////////////////////ORSAKAR NULLPOINTER///////////////////////////////////////////////
     private void removeWithTwoChildren(Node node){
-
         Node rightMost = getRightMost(node.left);
         node.data = rightMost.data;
         removeNode(rightMost);
-
     }
 
     private void removeWithOneChild(Node node){
-        if((node.left == null && node.right == null) || (node.left != null && node.right != null)){
-            System.out.println("Idiot, den har ju antingen inget eller två barn! [removeWithOneChild]");
-            return;
-        }
         if(node.parent == null){
             if(node.right != null){
                 node.right.parent = null;
@@ -236,10 +188,6 @@ public class SplayTreeSet<E  extends Comparable<? super E>> implements SimpleSet
     }
 
     private void removeWithNoChild(Node node){
-        if(node.left != null || node.right != null){
-            System.out.println("Idiot, den har ju för fan barn! [removeWithNoChild]");
-            return;
-        }
         if(node.parent == null){
             root = null;
             return;
