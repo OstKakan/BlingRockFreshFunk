@@ -52,3 +52,15 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+
+# Provided files
+**/BusEdge.java
+**/Lab4/src/BusStop.java
+**/Lab4/src/DrawGraph.java
+**/Lab4/src/Edge.java
+**/Lab4/src/lines.noBOM.txt
+**/Lab4/src/NodeObject.java
+**/Lab4/src/NodeTable.java
+**/Lab4/src/ShortRoute.java
+**/Lab4/src/stops.noBOM.txt
