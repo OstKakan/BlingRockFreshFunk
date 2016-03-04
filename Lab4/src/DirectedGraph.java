@@ -2,7 +2,6 @@
 import java.util.*;
 
 public class DirectedGraph<E extends Edge> {
-	private PriorityQueue<E> pq;
 	private Vector<LinkedList<E>> nodeVector;
 	private List<E>[] nodes;
 
@@ -53,7 +52,7 @@ public class DirectedGraph<E extends Edge> {
 		
 	public Iterator<E> minimumSpanningTree() {
 		LinkedList<E> shorterList, longerList;
-		pq = new PriorityQueue<E>(new CompKruskalEdge());
+		Queue<E> pq = new PriorityQueue<E>(new CompKruskalEdge());
 		nodeVector = new Vector<>(); //Vector with list of edges, this will be used for a return;
 
 		for(int i = 0 ; i < nodes.length ; i++){ //Off by one?

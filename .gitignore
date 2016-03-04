@@ -62,5 +62,6 @@ fabric.properties
 **/Lab4/src/lines.noBOM.txt
 **/Lab4/src/NodeObject.java
 **/Lab4/src/NodeTable.java
-**/Lab4/src/ShortRoute.java
-**/Lab4/src/stops.noBOM.txt
+**/ShortRoute.java
+**/stops.noBOM.txt
+**/.idea/vcs.xml
