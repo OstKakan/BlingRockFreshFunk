@@ -13,15 +13,23 @@ public class DirectedGraph<E extends Edge> {
 		}
 	}
 
+	/**
+	 * Adds an edge to the graph
+	 * @param e The edge to add to the graph
+     */
 	public void addEdge(E e) {
 		System.out.println("Source is: " + e.getSource());
 		nodes[e.getSource()].add(e);							//O(1)
-		//pq.add(e);
-
 	}
 
+	/**
+	 * Finds the shortest path between two nodes
+	 * @param from The source node
+	 * @param to The destination node
+     * @return Iterator for the shortest path between the two nodes (with all nodes on the path in order)
+     */
 	public Iterator<E> shortestPath(int from, int to) {
-		// Create array for visited nodes
+		// Create array for visited nodes (where all nodes hasn't been visited)
 		boolean[] visitedNodes = new boolean[nodes.length];
 		Arrays.fill(visitedNodes, false);
 
@@ -60,9 +68,7 @@ public class DirectedGraph<E extends Edge> {
 		}
 
 		for(List<E> list : nodes){
-			for(E e : list){
-				pq.add(e);
-			}
+			pq.addAll(list);
 		}
 
 		mainloop:
@@ -100,6 +106,11 @@ public class DirectedGraph<E extends Edge> {
 
 }
 
+/**
+ * A representation of a path between two nodes, holding the number of the start node,
+ * a list of edges for the path and the distance (or weight) for the full path
+ * @param <E> A subclass of Edge
+ */
 class Path<E extends Edge> {
 	private int startNode;
 	private List<E> path;
