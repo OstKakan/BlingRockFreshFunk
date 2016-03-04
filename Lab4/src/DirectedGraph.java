@@ -1,29 +1,26 @@
-
 import java.util.*;
 
 public class DirectedGraph<E extends Edge> {
 	private PriorityQueue<E> pq;
 	private Vector<LinkedList<E>> nodeVector;
-	private List<E>[] nodes;
+	private List<E>[] nodeEdges;
 
 	public DirectedGraph(int noOfNodes) {
-		System.out.println("Number of nodes: " + noOfNodes);
-		nodes = (List<E>[]) new List[noOfNodes];
+		System.out.println("Number of nodeEdges: " + noOfNodes);
+		nodeEdges = (List<E>[]) new List[noOfNodes];
 		for(int i = 0 ; i< noOfNodes ; i++){ 					//O(n)
-			nodes[i] = new LinkedList<E>();						//O(1)
+			nodeEdges[i] = new LinkedList<E>();						//O(1)
 		}
 	}
 
 	public void addEdge(E e) {
 		System.out.println("Source is: " + e.getSource());
-		nodes[e.getSource()].add(e);							//O(1)
-		//pq.add(e);
-
+		nodeEdges[e.getSource()].add(e);							//O(1)
 	}
 
 	public Iterator<E> shortestPath(int from, int to) {
 		// Create array for visited nodes
-		boolean[] visitedNodes = new boolean[nodes.length];
+		boolean[] visitedNodes = new boolean[nodeEdges.length];
 		Arrays.fill(visitedNodes, false);
 
 		// Create empty priority queue
@@ -39,7 +36,7 @@ public class DirectedGraph<E extends Edge> {
 					return path.getPath().iterator();
 				} else {
 					visitedNodes[path.getStartNode()] = true;
-					for (E edge : nodes[path.getStartNode()]) {
+					for (E edge : nodeEdges[path.getStartNode()]) {
 						List<E> listToAdd = new ArrayList<E>(path.getPath());
 						listToAdd.add(edge);
 						pq.add(new Path<E>(edge.getDest(), listToAdd, path.getDistance() + edge.getWeight()));
@@ -50,17 +47,25 @@ public class DirectedGraph<E extends Edge> {
 
 		return null;
 	}
-		
+
+	/**
+	 * Using Kruskal's algorithm, calculates the MST of a graph
+	 *
+ 	 * @return the MST of the nodes and edges provided
+	 */
 	public Iterator<E> minimumSpanningTree() {
 		LinkedList<E> shorterList, longerList;
 		pq = new PriorityQueue<E>(new CompKruskalEdge());
 		nodeVector = new Vector<>(); //Vector with list of edges, this will be used for a return;
 
-		for(int i = 0 ; i < nodes.length ; i++){ //Off by one?
+		for(int i = 0 ; i < nodeEdges.length ; i++){
 			nodeVector.add(new LinkedList<E>());
 		}
 
-		for(List<E> list : nodes){
+		/*
+		Places all edges in a priority queue, sorted after minimum weight
+		 */
+		for(List<E> list : nodeEdges){
 			for(E e : list){
 				pq.add(e);
 			}
@@ -70,6 +75,7 @@ public class DirectedGraph<E extends Edge> {
 		while(!pq.isEmpty()){
 			E e;
 			do{
+				//Take the edge with the least weight
 				e = pq.poll();
 				if(e == null){
 					break mainloop;
@@ -77,6 +83,10 @@ public class DirectedGraph<E extends Edge> {
 
 			}while(nodeVector.get(e.getSource()) == nodeVector.get(e.getDest()));
 
+			/*
+			Set longer- and shorterlist to one of the indexes (that represents a node) element and correct any fault if
+			needed. Take the edges in shorterlist and add them to longerlist
+			 */
 			longerList = nodeVector.get(e.getDest());
 			shorterList = nodeVector.get(e.getSource());
 			if(nodeVector.get(e.getSource()).size() > nodeVector.get(e.getDest()).size()){
@@ -84,6 +94,10 @@ public class DirectedGraph<E extends Edge> {
 				shorterList = nodeVector.get(e.getDest());
 			}
 
+			/*
+			Make sure that the indexes, that represents nodes, points to the same list of edges, as to imply that the
+			nodes are in the same set in the partition.
+			 */
 			longerList.add(e);
 			nodeVector.set(e.getDest(), longerList);
 			nodeVector.set(e.getSource(), longerList);
