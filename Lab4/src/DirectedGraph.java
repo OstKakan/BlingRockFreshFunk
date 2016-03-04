@@ -1,7 +1,6 @@
 import java.util.*;
 
 public class DirectedGraph<E extends Edge> {
-	private PriorityQueue<E> pq;
 	private Vector<LinkedList<E>> nodeVector;
 	private List<E>[] nodeEdges;
 
@@ -13,14 +12,25 @@ public class DirectedGraph<E extends Edge> {
 		}
 	}
 
+	/**
+	 * Adds an edge to the graph
+	 * @param e The edge to add to the graph
+     */
 	public void addEdge(E e) {
-		System.out.println("Source is: " + e.getSource());
 		nodeEdges[e.getSource()].add(e);							//O(1)
 	}
 
+	/**
+	 * Finds the shortest path between two nodes
+	 * @param from The source node
+	 * @param to The destination node
+     * @return Iterator for the shortest path between the two nodes (with all nodes on the path in order)
+     */
 	public Iterator<E> shortestPath(int from, int to) {
+
 		// Create array for visited nodes
 		boolean[] visitedNodes = new boolean[nodeEdges.length];
+
 		Arrays.fill(visitedNodes, false);
 
 		// Create empty priority queue
@@ -55,20 +65,19 @@ public class DirectedGraph<E extends Edge> {
 	 */
 	public Iterator<E> minimumSpanningTree() {
 		LinkedList<E> shorterList, longerList;
-		pq = new PriorityQueue<E>(new CompKruskalEdge());
+		Queue<E> pq = new PriorityQueue<E>(new CompKruskalEdge());
 		nodeVector = new Vector<>(); //Vector with list of edges, this will be used for a return;
 
 		for(int i = 0 ; i < nodeEdges.length ; i++){
 			nodeVector.add(new LinkedList<E>());
 		}
 
+
 		/*
 		Places all edges in a priority queue, sorted after minimum weight
 		 */
 		for(List<E> list : nodeEdges){
-			for(E e : list){
-				pq.add(e);
-			}
+			pq.addAll(list);
 		}
 
 		mainloop:
@@ -115,6 +124,11 @@ public class DirectedGraph<E extends Edge> {
 
 }
 
+/**
+ * A representation of a path between two nodes, holding the number of the start node,
+ * a list of edges for the path and the distance (or weight) for the full path
+ * @param <E> A subclass of Edge
+ */
 class Path<E extends Edge> {
 	private int startNode;
 	private List<E> path;
