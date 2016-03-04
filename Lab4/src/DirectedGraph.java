@@ -2,9 +2,9 @@
 import java.util.*;
 
 public class DirectedGraph<E extends Edge> {
-	private List<E>[] nodes;
 	private PriorityQueue<E> pq;
 	private Vector<LinkedList<E>> nodeVector;
+	private List<E>[] nodes;
 
 	public DirectedGraph(int noOfNodes) {
 		System.out.println("Number of nodes: " + noOfNodes);
@@ -22,6 +22,32 @@ public class DirectedGraph<E extends Edge> {
 	}
 
 	public Iterator<E> shortestPath(int from, int to) {
+		// Create array for visited nodes
+		boolean[] visitedNodes = new boolean[nodes.length];
+		Arrays.fill(visitedNodes, false);
+
+		// Create empty priority queue
+		Queue<Path<E>> pq = new PriorityQueue<>(new CompDijkstraPath<>());
+
+		pq.add(new Path<E>(from, new ArrayList<E>(), 0));
+
+		while (!pq.isEmpty()) {
+			Path<E> path = pq.poll();
+
+			if (!visitedNodes[path.getStartNode()]) {
+				if (path.getStartNode() == to) {
+					return path.getPath().iterator();
+				} else {
+					visitedNodes[path.getStartNode()] = true;
+					for (E edge : nodes[path.getStartNode()]) {
+						List<E> listToAdd = new ArrayList<E>(path.getPath());
+						listToAdd.add(edge);
+						pq.add(new Path<E>(edge.getDest(), listToAdd, path.getDistance() + edge.getWeight()));
+					}
+				}
+			}
+		}
+
 		return null;
 	}
 		
@@ -72,5 +98,29 @@ public class DirectedGraph<E extends Edge> {
 		return nodeVector.get(1).iterator();
 	}
 
+
 }
-  
+
+class Path<E extends Edge> {
+	private int startNode;
+	private List<E> path;
+	private double distance;
+
+	public Path(int startNode, List<E> path, double distance) {
+		this.startNode = startNode;
+		this.path = path;
+		this.distance = distance;
+	}
+
+	public int getStartNode() {
+		return this.startNode;
+	}
+
+	public List<E> getPath() {
+		return this.path;
+	}
+
+	public double getDistance() {
+		return this.distance;
+	}
+}
